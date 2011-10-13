@@ -287,5 +287,5 @@ ALTER TABLE `student`
 --
 -- Constraints for table `tutoral_room`
 --
-ALTER TABLE `tutoral_room`
+ALTER TABLE `tutorial_room`
   ADD CONSTRAINT `tutoral_room_ibfk_1` FOREIGN KEY (`dept_id`) REFERENCES `department` (`id`);

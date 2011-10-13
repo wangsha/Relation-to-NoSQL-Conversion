@@ -54,7 +54,7 @@ public class MigrateData {
 			data = sql.query("SELECT MAX(id) FROM department WHERE 1");
 			data.next();
 			redis.set("deptid", data.getString(1));
-			//System.out.println(redis.hgetAll("department"));
+			System.out.println(redis.hgetAll("department"));
 			
 			/**
 			 * Convert Course (id, title, dept_id)
@@ -77,12 +77,12 @@ public class MigrateData {
 			data = sql.query("SELECT stu_id, stf_id FROM mentor");
 			Schema stustf = new Schema("mentor", new String[] {"stu_id", "stf_id"}, new String[] {"stu_id"});
 			converter.toHashSet("mentor", stustf, data);
-			//System.out.println(redis.hgetAll("mentor"));
+			System.out.println(redis.hgetAll("mentor"));
 			
 			data = sql.query("SELECT stu_id, stf_id FROM mentor");
 			Schema stfstu = new Schema("mentor", new String[] {"stu_id", "stf_id"}, new String[] {"stf_id"});
 			converter.createReveserMappingSet(stfstu, "stf_id", data);
-			//System.out.println(redis.smembers("mentor:stf_id:3"));
+			System.out.println(redis.smembers("mentor:stf_id:3"));
 			
 			/**
 			 * Convert student, join person table with student table and delete person table in key-value store

@@ -183,11 +183,11 @@ public class SelectTest {
 		// TODO Auto-generated method stub
 		SelectTest test = new SelectTest();
 		try {
-			//test.findCourseTitle();
-			//test.findCourseDepartment();
-			//test.findAverageCourseMark();
-			//test.findAverageStudentMark();
-			//test.findStudentMetor();
+			test.findCourseTitle();
+			test.findCourseDepartment();
+			test.findAverageCourseMark();
+			test.findAverageStudentMark();
+			test.findStudentMetor();
 			test.findDepartmentTutorialCapacity();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
