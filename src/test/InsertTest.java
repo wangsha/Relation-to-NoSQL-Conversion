@@ -29,9 +29,11 @@ public class InsertTest {
 		Runtime run = Runtime.getRuntime();
 		Process pr;
 		try {
-			pr = run.exec(cmd);
-			pr.waitFor();
-			sql = new MySQLConnector("127.0.0.1", 3306, Config.db_user,
+			if(Config.startRedisInEclipse) {
+				pr = run.exec(cmd);
+				pr.waitFor();
+			}
+			sql = new MySQLConnector(Config.host, Config.port, Config.db_user,
 					Config.db_pwd, Config.db_name);
 			redis = new Redis(Config.redis_server);
 		} catch (Exception e) {
@@ -41,6 +43,16 @@ public class InsertTest {
 	}
 
 	public void addStudent() throws SQLException {
+		
+		// SQL
+		// Delete tuples if exist already
+		String del = "DELETE FROM student WHERE nric='G1594325W'";
+		int delCount = sql.update(del);
+		del = "DELETE FROM person WHERE nric='G1594325W'";
+		delCount += sql.update(del);
+		if(debug_on)
+			System.out.println("DELETE FROM student: "+delCount);
+		
 		// SQL
 		// Insert Person
 		PreparedStatement query = sql
@@ -60,7 +72,8 @@ public class InsertTest {
 		data.next();
 		String pid = data.getString(1);
 		System.out.println(pid);
-
+		
+		
 		// Redis
 		// Get next student id
 		Long sid = redis.incr("studentid");
@@ -74,10 +87,20 @@ public class InsertTest {
 
 		if (debug_on)
 			System.out.println(redis.hgetAll(key));
-
+		
+		Long delId = redis.del(key);
+		System.out.println("The key deleted: "+delId);
+		System.out.println("Student id: "+sid);
 	}
 
 	public void addMentor() throws SQLException {
+		// SQL
+		// Delete tuples if exist already
+		String del = "DELETE FROM mentor WHERE stu_id=16 AND stf_id=5";
+		int delCount = sql.update(del);
+		if(debug_on)
+			System.out.println("DELETE FROM menter: "+delCount);
+		
 		// SQL
 		// Insert mentor
 		PreparedStatement query = sql
@@ -102,7 +125,7 @@ public class InsertTest {
 		// TODO Auto-generated method stub
 		InsertTest test = new InsertTest();
 		try {
-			//test.addStudent();
+//			test.addStudent();
 			test.addMentor();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block

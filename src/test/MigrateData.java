@@ -26,14 +26,16 @@ public class MigrateData {
 			Runtime run = Runtime.getRuntime();
 			Process pr;
 			try {
-				pr = run.exec(cmd);
-				pr.waitFor();
+				if(Config.startRedisInEclipse) {
+					pr = run.exec(cmd);
+					pr.waitFor();
+				}
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
-			MySQLConnector sql = new MySQLConnector("127.0.0.1", 3306, Config.db_user,
+			MySQLConnector sql = new MySQLConnector(Config.host, Config.port, Config.db_user,
 					Config.db_pwd, Config.db_name);
 			Redis redis = new Redis(Config.redis_server);
 			
