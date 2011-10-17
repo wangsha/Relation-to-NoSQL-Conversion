@@ -28,12 +28,13 @@ public class SelectTest {
 	private boolean debug_on = true;
 	
 	public SelectTest() {
-		String cmd = "redis-server";
 		Runtime run = Runtime.getRuntime();
 		Process pr;
 		try {
-			pr = run.exec(cmd);
-			pr.waitFor();
+			if(Config.startRedisInEclipse) {
+				pr = run.exec(Config.redis_cmd);
+				pr.waitFor();
+			}
 			sql = new MySQLConnector("127.0.0.1", 3306, Config.db_user,
 					Config.db_pwd, Config.db_name);
 			redis = new Redis(Config.redis_server);

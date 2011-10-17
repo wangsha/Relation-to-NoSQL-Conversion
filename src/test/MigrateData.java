@@ -22,12 +22,11 @@ import database.Redis;
 public class MigrateData {
 	public static void main(String[] args) {
 		try {
-			String cmd = "redis-server";
 			Runtime run = Runtime.getRuntime();
 			Process pr;
 			try {
 				if(Config.startRedisInEclipse) {
-					pr = run.exec(cmd);
+					pr = run.exec(Config.redis_cmd);
 					pr.waitFor();
 				}
 			} catch (Exception e) {
