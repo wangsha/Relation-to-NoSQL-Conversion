@@ -45,6 +45,7 @@ public class MigrateData {
 			
 			//Clean up redis.db
 			redis.flushDB();
+			
 			/**
 			 * Convert Department(id, name)
 			 */
@@ -55,7 +56,16 @@ public class MigrateData {
 			data = sql.query("SELECT MAX(id) FROM department WHERE 1");
 			data.next();
 			redis.set("deptid", data.getString(1));
+			
+			//Output Comment
+			System.out.println("****************************************************");
+			System.out.println("***         Convert Deparment(id, name)          ***");
+			System.out.println("***         key=id                               ***");
+			System.out.println("***         value=name                           ***");
+			System.out.println("****************************************************");
+			System.out.println("Query for all department: ");
 			System.out.println(redis.hgetAll("department"));
+			
 			
 			/**
 			 * Convert Course (id, title, dept_id)
@@ -67,8 +77,13 @@ public class MigrateData {
 			converter.toHashSets(course, data);
 			data = sql.query("SELECT code FROM course WHERE 1");
 			converter.toSet("course_code", data);
-		
-			//System.out.println(redis.hgetAll("course:CS1010"));
+			
+			//Output Comment
+			System.out.println("\n****************************************************");
+			System.out.println("***         Convert Course(id, title, dept_id)   ***");
+			System.out.println("****************************************************");
+			System.out.println("Query for course:CS1010: ");
+			System.out.println(redis.hgetAll("course:CS1010"));
 			
 			/**
 			 * Convert mentor(student_id, staff_id) many-to-one relationship
@@ -83,6 +98,15 @@ public class MigrateData {
 			data = sql.query("SELECT stu_id, stf_id FROM mentor");
 			Schema stfstu = new Schema("mentor", new String[] {"stu_id", "stf_id"}, new String[] {"stf_id"});
 			converter.createReveserMappingSet(stfstu, "stf_id", data);
+			
+			//Output Comment
+			System.out.println("\n****************************************************");
+			System.out.println("***         Convert mentor(stu_id, stf_id)       ***");
+			System.out.println("***         also create the reverse mapping      ***");
+			System.out.println("****************************************************");
+			System.out.println("Query for all menter: ");
+			System.out.println(redis.hgetAll("mentor"));
+			System.out.println("Query for mentor:stf_id:3: ");
 			System.out.println(redis.smembers("mentor:stf_id:3"));
 			
 			/**
@@ -101,23 +125,33 @@ public class MigrateData {
 			data = sql.query("SELECT MAX(id) FROM student WHERE 1");
 			data.next();
 			redis.set("studentid", data.getString(1));
-			System.out.println(redis.get("studentid"));
-			//System.out.println(redis.hgetAll("student:1"));
-			
+						
 			data = sql.query("SELECT s.nric, id FROM student s, person p WHERE s.nric = p.nric");
 			Schema nric_id = new Schema("student:nric", new String[]{"nric", "id"}, new String[]{"nric"});
 			converter.toHashSet("student:nric_id", nric_id, data);
-			//System.out.println(redis.hgetAll("student:nric_id"));
 			
 			data = sql.query("SELECT matric_no, id FROM student s, person p WHERE s.nric = p.nric");
 			Schema matric_id = new Schema("student:matric_id", new String[]{"matric_no", "id"}, new String[]{"matric_no"});
 			converter.toHashSet("student:matric_id", matric_id, data);
-			//System.out.println(redis.hgetAll("student:matric_id"));
 			
 			data = sql.query("SELECT name, id FROM student s, person p WHERE s.nric = p.nric");
 			Schema name_id = new Schema("student:name_id", new String[]{"name", "id"}, new String[]{"name"});
 			converter.toHashSet("student:name_id", name_id, data);
-			//System.out.println(redis.hgetAll("student:name_id"));
+			
+			
+			//Output Comment
+			System.out.println("\n****************************************************");
+			System.out.println("***         Convert student join with person     ***");
+			System.out.println("***         delete person in Key-value store     ***");
+			System.out.println("****************************************************");
+			System.out.println("--------------------Query for student:1--------------------");
+			System.out.println(redis.hgetAll("student:1"));
+			System.out.println("--------------------Query for student:nric_id--------------------");
+			System.out.println(redis.hgetAll("student:nric_id"));
+			System.out.println("--------------------Query for student:matric_id--------------------");
+			System.out.println(redis.hgetAll("student:matric_id"));
+			System.out.println("--------------------Query for student:name_id--------------------");
+			System.out.println(redis.hgetAll("student:name_id"));
 			
 			/**
 			 * Convert staff, join person table with staff table and delete person table in key-value store
@@ -134,17 +168,26 @@ public class MigrateData {
 			data = sql.query("SELECT MAX(id) FROM staff WHERE 1");
 			data.next();
 			redis.set("staffid", data.getString(1));
-			//System.out.println(redis.hgetAll("staff:2"));
 			
 			data = sql.query("SELECT s.nric, id FROM staff s, person p WHERE s.nric = p.nric");
 			nric_id = new Schema("staff:nric", new String[]{"nric", "id"}, new String[]{"nric"});
 			converter.toHashSet("staff:nric_id", nric_id, data);
-			//System.out.println(redis.hgetAll("staff:nric_id"));
 			
 			data = sql.query("SELECT name, id FROM staff s, person p WHERE s.nric = p.nric");
 			name_id = new Schema("staff:name_id", new String[]{"name", "id"}, new String[]{"name"});
 			converter.toHashSet("staff:name_id", name_id, data);
-			//System.out.println(redis.hgetAll("staff:name_id"));
+			
+			//Output Comment
+			System.out.println("\n****************************************************");
+			System.out.println("***         Convert student join with person     ***");
+			System.out.println("***         delete person in Key-value store     ***");
+			System.out.println("****************************************************");
+			System.out.println("--------------------Query for stuff:2--------------------");
+			System.out.println(redis.hgetAll("staff:2"));
+			System.out.println("--------------------Query for stuff:nric_id--------------------");
+			System.out.println(redis.hgetAll("staff:nric_id"));
+			System.out.println("--------------------Query for stuff:name_id--------------------");
+			System.out.println(redis.hgetAll("staff:name_id"));
 			
 			/**
 			 * Convert take(sid, cid, mark) relationship with attributes
@@ -155,14 +198,20 @@ public class MigrateData {
 			Schema stake = new Schema("take:student", new String[] {"sid", "cid", "mark"}, 
 					new String[]{"sid"});
 			converter.toValueHash("take:student", stake, data);
-			//System.out.println(redis.hgetAll("take:student:1"));
 			
 			data = sql.query("SELECT cid, sid, mark FROM take WHERE 1");
 			Schema ctake = new Schema("take:course", new String[] {"cid", "sid", "mark"}, 
 					new String[]{"cid"});
 			converter.toValueHash("take:course", ctake, data);
-			//System.out.println(redis.hgetAll("take:course:CS1010"));
 			
+			//Output Comments
+			System.out.println("\n****************************************************");
+			System.out.println("***         Convert take(sid, cid, mark)         ***");
+			System.out.println("****************************************************");
+			System.out.println("--------------------Query for take:student:1--------------------");
+			System.out.println(redis.hgetAll("take:student:1"));
+			System.out.println("--------------------Query for take:course:CS1010--------------------");
+			System.out.println(redis.hgetAll("take:course:CS1010"));
 			
 			/**
 			 * Convert tutorial_room(dept_id, room_id, capacity, location, year_start_use)
@@ -172,6 +221,13 @@ public class MigrateData {
 			Schema tm = new Schema("tutorial_room", new String[] {"dept_id", "room_id", 
 			"capacity", "location", "year_start_use"}, new String[] {"dept_id", "room_id"});
 			converter.toHashSets(tm, data);
+			
+			//Output Comments
+			System.out.println("\n**************************************************************");
+			System.out.println("***         Convert tutorial_room(dept_id,                 ***");
+			System.out.println("***         room_id, capacity, location, year_start_use    ***");
+			System.out.println("**************************************************************");
+			System.out.println("--------------------Query for tutorial_room:1:1--------------------");
 			System.out.println(redis.hgetAll("tutorial_room:1:1"));
 			
 		} catch (Exception e) {
